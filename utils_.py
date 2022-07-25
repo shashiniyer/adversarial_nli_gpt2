@@ -1,5 +1,21 @@
 import torch
 from tqdm.notebook import tqdm
+import numpy as np
+
+def tokenize(tokenizer, sequence, max_model_length = 128):
+    
+    # apply tokenizer on sequence
+    raw = tokenizer(sequence)
+    
+    if len(raw['input_ids']) > max_model_length:
+        
+        # set Exclude to True
+        return({'input_ids': raw['input_ids'], 'attention_mask': raw['attention_mask'], 'exclude': True})
+    
+    else:
+        
+        # set Exclude to False
+        return({'input_ids': raw['input_ids'], 'attention_mask': raw['attention_mask'], 'exclude': False})
 
 def train_classifier(classifier, dataloader, optimizer, device, npochs = 3):
     
@@ -82,16 +98,21 @@ def predict(classifier, dataloader, device):
     
     return(preds.numpy())
 
-def tokenize(tokenizer, sequence):
+def select_k(pred_scores, tau, k, seed = 42):
     
-    raw = tokenizer(sequence)
+    """
+        Select up to k instances with the highest predictability
+        scores (see report) subject to score >= tau
+    """
     
-    if len(raw['input_ids']) > 128:
-        
-        # set Exclude to True
-        return({'input_ids': raw['input_ids'], 'attention_mask': raw['attention_mask'], 'exclude': True})
+    # shuffle to randomly resolve ties
+    shuf_idx = np.arange(len(pred_scores)) # initialise
+    np.random.default_rng(seed).shuffle(shuf_idx) #O(n) complexity
+    shuf_scores = np.array(pred_scores)[shuf_idx] #O(n) complexity
     
-    else:
-        
-        # set Exclude to False
-        return({'input_ids': raw['input_ids'], 'attention_mask': raw['attention_mask'], 'exclude': False})
+    # sort descending because we want to select instances with high pred_score
+    order_idx = np.argsort(-shuf_scores) #O(n²) complexity - most expensive operation (worst case)
+    sort_shuf_idx = shuf_idx[order_idx] #O(n) complexity
+    sort_shuf_scores = shuf_scores[order_idx] #O(n) complexity
+    
+    return(sort_shuf_idx[sort_shuf_scores >= tau][:k]) #O(n) complexity
