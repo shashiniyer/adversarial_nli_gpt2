@@ -1,6 +1,7 @@
 import torch
 from tqdm.notebook import tqdm
 import numpy as np
+from torchmetrics.functional import accuracy, matthews_corrcoef
 
 def tokenize(tokenizer, sequence, max_model_length = 128):
     
@@ -75,28 +76,91 @@ def train_classifier(classifier, dataloader, optimizer, device, npochs = 3):
     
     return(classifier)
 
-def predict(classifier, dataloader, device):
+def predict(classifier, dataloader, device, out_format = 'np', return_labels = False, problem = 'NLI'):
+    
+    assert (type(out_format) == str) and (out_format in ['np', 'pt-gpu']), \
+        "Implementation available only for out_format in ['np', 'pt-gpu']"
+    
+    assert (type(problem) == str) and (problem in ['NLI', 'TE']), \
+        "Implementation available only for problem in ['NLI', 'TE']"
     
     classifier.to(device) # move classifier to device
     
-    for batch, data in tqdm(enumerate(dataloader), total = len(dataloader)):
+    if out_format == 'np':
+    
+        for batch, data in tqdm(enumerate(dataloader), total = len(dataloader)):
+
+            with torch.no_grad():
+                batch_preds = classifier(**data.to(device)).logits.argmax(1)
+
+            if batch == 0:
+
+                preds = batch_preds.detach().cpu()
+                
+                if return_labels:
+                    
+                    labels = data['labels'].argmax(1).detach().cpu()
+
+            else:
+
+                preds = torch.cat((preds, batch_preds.detach().cpu()))
+                
+                if return_labels:
+                    
+                    labels = torch.cat((labels, data['labels'].argmax(1).detach().cpu()))
+
+        classifier.to('cpu') # move classifier to cpu
         
-        with torch.no_grad():
-            batch_preds = classifier(**data.to(device)).logits.argmax(1)
-        
-        #print(batch_preds)
-        
-        if batch == 0:
+        if problem == 'TE':
             
-            preds = batch_preds.detach().cpu()
+            preds[preds == 2] = torch.tensor([1]).detach()
+        
+        if return_labels:
+            
+            return(preds.numpy(), labels.numpy())
         
         else:
             
-            preds = torch.cat((preds, batch_preds.detach().cpu()))
+            return(preds.numpy())
     
-    classifier.to('cpu') # move classifier to cpu
+    elif out_format == 'pt-gpu':
     
-    return(preds.numpy())
+        for batch, data in tqdm(enumerate(dataloader), total = len(dataloader)):
+
+            with torch.no_grad():
+                batch_preds = classifier(**data.to(device)).logits.argmax(1)
+
+            #print(batch_preds)
+
+            if batch == 0:
+
+                preds = batch_preds.detach()
+                
+                if return_labels:
+                    
+                    labels = data['labels'].argmax(1).detach()
+
+            else:
+
+                preds = torch.cat((preds, batch_preds.detach()))
+                
+                if return_labels:
+                    
+                    labels = torch.cat((labels, data['labels'].argmax(1).detach()))
+
+        classifier.to('cpu') # move classifier to cpu
+        
+        if problem == 'TE':
+            
+            preds[preds == 2] = torch.tensor([1]).detach()
+        
+        if return_labels:
+            
+            return(preds, labels)
+        
+        else:
+            
+            return(preds)
 
 def select_k(pred_scores, tau, k, seed = 42):
     
@@ -116,3 +180,24 @@ def select_k(pred_scores, tau, k, seed = 42):
     sort_shuf_scores = shuf_scores[order_idx] #O(n) complexity
     
     return(sort_shuf_idx[sort_shuf_scores >= tau][:k]) #O(n) complexity
+
+def evaluate_acc_rk(classifier, dataloader, device, problem = 'NLI'):
+    
+    assert (type(problem) == str) and (problem in ['NLI', 'TE']), \
+        "Implementation available only for problem in ['NLI', 'TE']"
+    
+    # get predictions and labels
+    preds, labels = predict(classifier, dataloader, device, out_format = 'pt-gpu', return_labels = True, problem = problem)
+    
+    # set num_classes
+    if problem == 'TE':
+    
+        num_classes = 2
+    
+    else:
+        
+        num_classes = 3
+    
+    # decode one-hot
+    return(accuracy(preds, labels).detach().cpu().numpy(), \
+           matthews_corrcoef(preds, labels, num_classes = num_classes).detach().cpu().numpy())
