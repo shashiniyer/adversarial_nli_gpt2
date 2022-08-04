@@ -292,7 +292,7 @@ if __name__ == '__main__':
     ############# Out-of-Distribution Evaluation - ANLI - Fine-Tuning #############
     
     # log
-    print('Begin: Out-of-Distribution Evaluation - ANLI - Zero-Shot')    
+    print('Begin: Out-of-Distribution Evaluation - ANLI - Fine-Tuning')    
     
     # fine-tune and evaluate for each round
     for rd in ['r1', 'r2', 'r3']:
@@ -314,4 +314,4 @@ if __name__ == '__main__':
         print(f'Round: {rd} - Seed: {seed} - Accuracy: {acc*100:>3f}%, RK: {rk:>3f}')           
     
     # log
-    print('End: Out-of-Distribution Evaluation - ANLI - Zero-Shot')     
+    print('End: Out-of-Distribution Evaluation - ANLI - Fine-Tuning')     
