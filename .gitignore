@@ -134,3 +134,6 @@ dmypy.json
 
 # Model Checkpoints
 *.pth
+
+# Ghost files windows
+~*

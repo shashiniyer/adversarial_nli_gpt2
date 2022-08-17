@@ -1,5 +1,7 @@
 SNLI test - Zero-Shot
+Seed: 3 - Dataset: SNLI (test) - Accuracy: 83.876222%, RK: 0.758514
 
+HANS - Zero-Shot
 Seed: 4 - Dataset: constituent - Accuracy: 50.000000%, RK: 0.000000
 Seed: 4 - Dataset: lexical_overlap - Accuracy: 50.000000%, RK: 0.000000
 Seed: 4 - Dataset: subsequence - Accuracy: 50.000000%, RK: 0.000000
