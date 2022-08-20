@@ -19,7 +19,7 @@ for path, subdirs, files in os.walk('./raw_data/Stress Tests/'):
             
             print('File ' + str(count) + ': ' + dict_key + ' - Begin')
         
-            with open(os.path.join(path, name), 'r') as json_file:
+            with open(os.path.join(path, name), 'r', encoding='utf-8') as json_file:
                 
                 json_list = list(json_file)
             
