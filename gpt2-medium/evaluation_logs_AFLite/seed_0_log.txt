@@ -1,0 +1,23 @@
+SNLI test - Zero-Shot
+Seed: 0 - Dataset: SNLI (test) - Accuracy: 87.164086%, RK: 0.807548
+
+HANS - Zero-Shot
+Seed: 0 - Dataset: constituent - Accuracy: 50.349998%, RK: 0.048204
+Seed: 0 - Dataset: lexical_overlap - Accuracy: 50.050002%, RK: 0.018905
+Seed: 0 - Dataset: subsequence - Accuracy: 49.950001%, RK: -0.012920
+
+NLI Diagnostics - Zero-Shot
+Seed: 0 - Dataset: Lexical Semantics - Accuracy: 43.750000%, RK: 0.132049
+Seed: 0 - Dataset: Predicate-Argument Structure - Accuracy: 58.018869%, RK: 0.262564
+Seed: 0 - Dataset: Logic - Accuracy: 43.681318%, RK: 0.147550
+Seed: 0 - Dataset: Knowledge - Accuracy: 38.028169%, RK: 0.104065
+
+Stress Tests - Zero-Shot
+Seed: 0 - Dataset: Competence - Accuracy: 34.893349%, RK: -0.096645
+Seed: 0 - Dataset: Distraction - Accuracy: 54.344529%, RK: 0.333169
+Seed: 0 - Dataset: Noise - Accuracy: 60.694391%, RK: 0.414125
+
+ANLI - Fine-Tuning
+Round: r1 - Seed: 0 - Accuracy: 29.887411%, RK: -0.053223
+Round: r2 - Seed: 0 - Accuracy: 31.873727%, RK: -0.023580
+Round: r3 - Seed: 0 - Accuracy: 34.954956%, RK: 0.022737
