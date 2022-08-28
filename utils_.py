@@ -18,7 +18,7 @@ def tokenize(tokenizer, sequence, max_model_length = 128):
         # set Exclude to False
         return({'input_ids': raw['input_ids'], 'attention_mask': raw['attention_mask'], 'exclude': False})
 
-def train_classifier(classifier, dataloader, optimizer, device, npochs = 3):
+def train_classifier(classifier, dataloader, optimizer, device, nepochs = 3):
     
     # initialise
     curr_loss = 0
@@ -35,7 +35,7 @@ def train_classifier(classifier, dataloader, optimizer, device, npochs = 3):
     # while abs(prev_loss - curr_loss) > 1e-5:
     
     # train for nepochs; nepochs = 3 in Le et al. (2020) - https://arxiv.org/abs/2002.04108
-    for _ in range(npochs):
+    for _ in range(nepochs):
         
         # reset losses
         #prev_loss = curr_loss
@@ -198,6 +198,5 @@ def evaluate_acc_rk(classifier, dataloader, device, problem = 'NLI'):
         
         num_classes = 3
     
-    # decode one-hot
     return(accuracy(preds, labels).detach().cpu().numpy(), \
            matthews_corrcoef(preds, labels, num_classes = num_classes).detach().cpu().numpy())
